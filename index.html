@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F07A1A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="ProdBT">
+<title>ProdBT</title>
+<style>
+  :root{
+    --naranja:#F07A1A;
+    --naranja-osc:#D9650A;
+    --naranja-claro:#FFF1E5;
+    --gris:#EEF0F2;
+    --gris-medio:#D5D9DE;
+    --texto:#2B2F33;
+    --texto-sec:#6B7280;
+    --blanco:#FFFFFF;
+    --rojo:#C0392B;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{background:var(--blanco);color:var(--texto);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent}
+  body{min-height:100vh;padding-bottom:calc(90px + env(safe-area-inset-bottom))}
+  .wrap{max-width:640px;margin:0 auto;padding:0 16px}
+
+  header{position:sticky;top:0;z-index:10;background:var(--blanco);
+    border-bottom:3px solid var(--naranja);padding:14px 0 10px}
+  header .wrap{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .logo{font-size:1.5rem;font-weight:800;letter-spacing:-.5px}
+  .logo span{color:var(--naranja)}
+  .fecha{display:flex;align-items:center;gap:6px}
+  .fecha button{width:36px;height:36px;border-radius:10px;border:none;background:var(--gris);
+    font-size:1.1rem;color:var(--texto);cursor:pointer}
+  .fecha input{height:36px;border:1px solid var(--gris-medio);border-radius:10px;padding:0 8px;
+    font:inherit;font-size:.9rem;color:var(--texto);background:var(--blanco)}
+
+  .dia-titulo{margin:18px 0 6px;font-size:1rem;font-weight:700;text-transform:capitalize}
+  .resumen{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+  .chip{background:var(--gris);border-radius:20px;padding:6px 12px;font-size:.85rem;font-weight:600}
+  .chip b{color:var(--naranja)}
+
+  .linea{border:1px solid var(--gris-medio);border-radius:14px;margin-bottom:14px;overflow:hidden}
+  .linea-cab{background:var(--gris);padding:10px 14px;display:flex;justify-content:space-between;align-items:center;
+    border-left:5px solid var(--naranja)}
+  .linea-cab h3{font-size:1rem}
+  .linea-cab small{color:var(--texto-sec);font-weight:600}
+  .cd{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;
+    border-top:1px solid var(--gris)}
+  .cd:first-of-type{border-top:none}
+  .cd-num{font-weight:700;font-size:1.05rem}
+  .cd-der{display:flex;align-items:center;gap:8px}
+  .badge{font-size:.8rem;font-weight:700;padding:5px 10px;border-radius:8px;white-space:nowrap}
+  .con{background:var(--naranja);color:#fff}
+  .sin{background:var(--gris);color:var(--texto-sec);border:1px solid var(--gris-medio)}
+  .ico{width:34px;height:34px;border:none;background:transparent;border-radius:8px;cursor:pointer;
+    color:var(--texto-sec);font-size:1rem}
+  .ico:active{background:var(--gris)}
+
+  .vacio{text-align:center;color:var(--texto-sec);padding:50px 20px;border:2px dashed var(--gris-medio);
+    border-radius:14px;margin-top:10px}
+  .vacio div{font-size:2.2rem;margin-bottom:8px}
+
+  .acciones{display:flex;gap:8px;margin:6px 0 20px}
+  .btn-sec{flex:1;height:44px;border-radius:12px;border:1px solid var(--gris-medio);background:var(--blanco);
+    font:inherit;font-weight:600;color:var(--texto);cursor:pointer}
+  .btn-sec:active{background:var(--gris)}
+
+  .fab{position:fixed;right:20px;bottom:calc(20px + env(safe-area-inset-bottom));width:62px;height:62px;
+    border-radius:50%;border:none;background:var(--naranja);color:#fff;font-size:2rem;
+    box-shadow:0 6px 18px rgba(240,122,26,.45);cursor:pointer}
+  .fab:active{background:var(--naranja-osc)}
+
+  /* Modal */
+  .modal{position:fixed;inset:0;background:rgba(43,47,51,.45);display:none;align-items:flex-end;
+    justify-content:center;z-index:50}
+  .modal.abierto{display:flex}
+  .hoja{background:var(--blanco);width:100%;max-width:640px;border-radius:20px 20px 0 0;
+    padding:20px 16px calc(20px + env(safe-area-inset-bottom));border-top:4px solid var(--naranja)}
+  .hoja h2{font-size:1.2rem;margin-bottom:16px}
+  label.lbl{display:block;font-size:.85rem;font-weight:700;color:var(--texto-sec);margin:12px 0 6px}
+  .campo{width:100%;height:48px;border:1px solid var(--gris-medio);border-radius:12px;padding:0 14px;
+    font:inherit;font-size:1rem;background:var(--blanco);color:var(--texto)}
+  .campo:focus{outline:none;border-color:var(--naranja);box-shadow:0 0 0 3px var(--naranja-claro)}
+  .lineas-rapidas{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .lineas-rapidas button{border:1px solid var(--gris-medio);background:var(--gris);border-radius:16px;
+    padding:5px 11px;font:inherit;font-size:.8rem;cursor:pointer;color:var(--texto)}
+  .check{display:flex;align-items:center;gap:12px;margin-top:18px;padding:14px;border-radius:12px;
+    background:var(--gris);cursor:pointer;user-select:none}
+  .check input{width:26px;height:26px;accent-color:var(--naranja);cursor:pointer}
+  .check span{font-weight:700}
+  .estado{margin-left:auto}
+  .botones{display:flex;gap:10px;margin-top:20px}
+  .btn{flex:1;height:50px;border-radius:12px;border:none;font:inherit;font-weight:700;font-size:1rem;cursor:pointer}
+  .btn-ok{background:var(--naranja);color:#fff}
+  .btn-ok:active{background:var(--naranja-osc)}
+  .btn-cancel{background:var(--gris);color:var(--texto)}
+  .error{color:var(--rojo);font-size:.85rem;margin-top:8px;min-height:1em}
+
+  .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
+    background:var(--texto);color:#fff;padding:10px 18px;border-radius:20px;font-size:.9rem;
+    opacity:0;transition:.25s;pointer-events:none;z-index:60}
+  .toast.ver{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="logo">Prod<span>BT</span></div>
+    <div class="fecha">
+      <button id="prev" aria-label="Día anterior">‹</button>
+      <input type="date" id="fecha">
+      <button id="next" aria-label="Día siguiente">›</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="dia-titulo" id="diaTitulo"></div>
+  <div class="resumen" id="resumen"></div>
+  <div id="lista"></div>
+  <div class="acciones" id="acciones">
+    <button class="btn-sec" id="copiar">📋 Copiar resumen</button>
+    <button class="btn-sec" id="hoy">Ir a hoy</button>
+  </div>
+</main>
+
+<button class="fab" id="nuevo" aria-label="Añadir centro">+</button>
+
+<div class="modal" id="modal">
+  <div class="hoja">
+    <h2 id="modalTitulo">Nuevo centro</h2>
+    <label class="lbl" for="linea">Nombre de la línea</label>
+    <input class="campo" id="linea" list="lineasList" autocomplete="off" placeholder="Ej. Línea Almendralejo 1">
+    <datalist id="lineasList"></datalist>
+    <div class="lineas-rapidas" id="rapidas"></div>
+
+    <label class="lbl" for="numero">Número del centro (CD)</label>
+    <input class="campo" id="numero" inputmode="numeric" autocomplete="off" placeholder="Ej. 46301">
+
+    <label class="check" for="bt">
+      <input type="checkbox" id="bt">
+      <span>Tiene Baja Tensión</span>
+      <span class="badge sin estado" id="estado">Sin BT</span>
+    </label>
+
+    <div class="error" id="error"></div>
+    <div class="botones">
+      <button class="btn btn-cancel" id="cancelar">Cancelar</button>
+      <button class="btn btn-ok" id="guardar">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const KEY = 'prodbt_registros_v1';
+  let registros = cargar();
+  let editandoId = null;
+
+  const $ = id => document.getElementById(id);
+  const fechaInput = $('fecha');
+
+  function hoyISO(){
+    const d = new Date();
+    d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
+    return d.toISOString().slice(0,10);
+  }
+  function cargar(){
+    try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch(e){ return []; }
+  }
+  function guardarTodo(){
+    try { localStorage.setItem(KEY, JSON.stringify(registros)); }
+    catch(e){ toast('No se pudo guardar en este navegador'); }
+  }
+  function esc(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  function toast(msg){
+    const t = $('toast'); t.textContent = msg; t.classList.add('ver');
+    clearTimeout(t._h); t._h = setTimeout(()=>t.classList.remove('ver'), 1800);
+  }
+
+  function lineasConocidas(){
+    const orden = {};
+    registros.forEach(r => { orden[r.linea] = Math.max(orden[r.linea]||0, r.creado||0); });
+    return Object.keys(orden).sort((a,b)=>orden[b]-orden[a]);
+  }
+
+  function pintar(){
+    const fecha = fechaInput.value;
+    const d = new Date(fecha + 'T12:00:00');
+    $('diaTitulo').textContent = d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+    const delDia = registros.filter(r => r.fecha === fecha);
+    const con = delDia.filter(r => r.bt).length;
+    const sin = delDia.length - con;
+
+    $('resumen').innerHTML = delDia.length ? `
+      <div class="chip">Total: <b>${delDia.length}</b></div>
+      <div class="chip">Con BT: <b>${con}</b></div>
+      <div class="chip">Sin BT: <b>${sin}</b></div>` : '';
+
+    if (!delDia.length){
+      $('lista').innerHTML = `<div class="vacio"><div>📝</div>No hay centros registrados este día.<br>Pulsa <b>+</b> para añadir uno.</div>`;
+      $('acciones').style.display = 'none';
+      return;
+    }
+    $('acciones').style.display = 'flex';
+
+    const grupos = {};
+    delDia.forEach(r => { (grupos[r.linea] = grupos[r.linea] || []).push(r); });
+
+    $('lista').innerHTML = Object.keys(grupos).map(linea => {
+      const items = grupos[linea].sort((a,b)=>a.creado-b.creado);
+      return `<section class="linea">
+        <div class="linea-cab"><h3>${esc(linea)}</h3><small>${items.length} CD</small></div>
+        ${items.map(r => `<div class="cd">
+            <span class="cd-num">CD ${esc(r.numero)}</span>
+            <span class="cd-der">
+              <span class="badge ${r.bt?'con':'sin'}">${r.bt?'Con BT':'Sin BT'}</span>
+              <button class="ico" data-edit="${r.id}" aria-label="Editar">✏️</button>
+              <button class="ico" data-del="${r.id}" aria-label="Borrar">🗑️</button>
+            </span>
+          </div>`).join('')}
+      </section>`;
+    }).join('');
+  }
+
+  function abrirModal(reg){
+    editandoId = reg ? reg.id : null;
+    $('modalTitulo').textContent = reg ? 'Editar centro' : 'Nuevo centro';
+    const lineas = lineasConocidas();
+    $('linea').value = reg ? reg.linea : (lineas[0] || '');
+    $('numero').value = reg ? reg.numero : '';
+    $('bt').checked = reg ? reg.bt : false;
+    actualizarEstado();
+    $('error').textContent = '';
+    $('lineasList').innerHTML = lineas.map(l=>`<option value="${esc(l)}">`).join('');
+    $('rapidas').innerHTML = lineas.slice(0,6).map(l=>`<button type="button" data-l="${esc(l)}">${esc(l)}</button>`).join('');
+    $('modal').classList.add('abierto');
+    setTimeout(()=> ($('linea').value ? $('numero') : $('linea')).focus(), 50);
+  }
+  function cerrarModal(){ $('modal').classList.remove('abierto'); editandoId = null; }
+
+  function actualizarEstado(){
+    const e = $('estado');
+    if ($('bt').checked){ e.textContent='Con BT'; e.className='badge con estado'; }
+    else { e.textContent='Sin BT'; e.className='badge sin estado'; }
+  }
+
+  function guardar(){
+    const linea = $('linea').value.trim();
+    const numero = $('numero').value.trim();
+    const bt = $('bt').checked;
+    if (!linea){ $('error').textContent = 'Escribe el nombre de la línea.'; return; }
+    if (!numero){ $('error').textContent = 'Escribe el número del centro.'; return; }
+    const fecha = fechaInput.value;
+    const dup = registros.find(r => r.fecha===fecha && r.linea===linea && r.numero===numero && r.id!==editandoId);
+    if (dup){ $('error').textContent = 'Ese CD ya está registrado hoy en esa línea.'; return; }
+
+    if (editandoId){
+      const r = registros.find(r=>r.id===editandoId);
+      Object.assign(r,{linea,numero,bt});
+      toast('Centro actualizado');
+    } else {
+      registros.push({id: Date.now().toString(36)+Math.random().toString(36).slice(2,6),
+        fecha, linea, numero, bt, creado: Date.now()});
+      toast('Centro guardado');
+    }
+    guardarTodo(); cerrarModal(); pintar();
+  }
+
+  function copiarResumen(){
+    const fecha = fechaInput.value;
+    const delDia = registros.filter(r=>r.fecha===fecha);
+    const grupos = {};
+    delDia.forEach(r => { (grupos[r.linea]=grupos[r.linea]||[]).push(r); });
+    const d = new Date(fecha+'T12:00:00').toLocaleDateString('es-ES',{day:'2-digit',month:'2-digit',year:'numeric'});
+    let txt = `ProdBT - ${d}\n`;
+    Object.keys(grupos).forEach(l=>{
+      txt += `\n${l}\n`;
+      grupos[l].sort((a,b)=>a.creado-b.creado).forEach(r=> txt += `  CD ${r.numero} - ${r.bt?'Con BT':'Sin BT'}\n`);
+    });
+    const con = delDia.filter(r=>r.bt).length;
+    txt += `\nTotal: ${delDia.length} (Con BT: ${con} / Sin BT: ${delDia.length-con})`;
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(()=>toast('Resumen copiado'), ()=>fallback(txt));
+    } else fallback(txt);
+  }
+  function fallback(txt){
+    const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta);
+    ta.select(); try{ document.execCommand('copy'); toast('Resumen copiado'); }catch(e){ toast('No se pudo copiar'); }
+    ta.remove();
+  }
+
+  function moverDia(n){
+    const d = new Date(fechaInput.value+'T12:00:00'); d.setDate(d.getDate()+n);
+    fechaInput.value = d.toISOString().slice(0,10); pintar();
+  }
+
+  // Eventos
+  fechaInput.value = hoyISO();
+  fechaInput.addEventListener('change', ()=>{ if(!fechaInput.value) fechaInput.value = hoyISO(); pintar(); });
+  $('prev').onclick = ()=>moverDia(-1);
+  $('next').onclick = ()=>moverDia(1);
+  $('hoy').onclick = ()=>{ fechaInput.value = hoyISO(); pintar(); };
+  $('nuevo').onclick = ()=>abrirModal(null);
+  $('cancelar').onclick = cerrarModal;
+  $('guardar').onclick = guardar;
+  $('copiar').onclick = copiarResumen;
+  $('bt').addEventListener('change', actualizarEstado);
+  $('modal').addEventListener('click', e=>{ if(e.target.id==='modal') cerrarModal(); });
+  $('numero').addEventListener('keydown', e=>{ if(e.key==='Enter') guardar(); });
+  $('linea').addEventListener('keydown', e=>{ if(e.key==='Enter') $('numero').focus(); });
+  $('rapidas').addEventListener('click', e=>{
+    const l = e.target.getAttribute('data-l'); if(l!==null){ $('linea').value = l; $('numero').focus(); }
+  });
+  $('lista').addEventListener('click', e=>{
+    const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
+    if (ed){ abrirModal(registros.find(r=>r.id===ed.dataset.edit)); }
+    if (del){
+      const r = registros.find(r=>r.id===del.dataset.del);
+      if (r && confirm(`¿Borrar el CD ${r.numero} de ${r.linea}?`)){
+        registros = registros.filter(x=>x.id!==r.id); guardarTodo(); pintar(); toast('Centro borrado');
+      }
+    }
+  });
+
+  pintar();
+})();
+</script>
+</body>
+</html>
