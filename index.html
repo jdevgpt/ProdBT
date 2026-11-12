@@ -128,6 +128,8 @@ header .wrap{justify-content:flex-start}
 @media (max-width:360px){.fecha{gap:4px}.fecha input{width:124px;min-width:0;padding:0 4px}.logo{font-size:1.3rem}}
 
 </style>
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="mobile-web-app-capable" content="yes">
 </head>
 <body>
 
@@ -359,6 +361,10 @@ header .wrap{justify-content:flex-start}
 
   pintar();
 })();
+</script>
+<script>/* App instalable y sin conexión */
+if('serviceWorker' in navigator && location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}
+try{if(navigator.storage&&navigator.storage.persist&&(matchMedia('(display-mode: standalone)').matches||navigator.standalone))navigator.storage.persist();}catch(e){}
 </script>
 </body>
 </html>
