@@ -102,6 +102,8 @@
   .btn-ok{background:var(--naranja);color:#fff}
   .btn-ok:active{background:var(--naranja-osc)}
   .btn-cancel{background:var(--gris);color:var(--texto)}
+  .pista{font-size:.85rem;font-weight:600;margin-top:6px;min-height:1.1em;color:var(--texto-sec)}
+  .pista.ok{color:var(--naranja-osc)}
   .error{color:var(--rojo);font-size:.85rem;margin-top:8px;min-height:1em}
 
   .toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%) translateY(20px);
@@ -162,13 +164,14 @@ header .wrap{justify-content:flex-start}
 <div class="modal" id="modal">
   <div class="hoja">
     <h2 id="modalTitulo">Nuevo centro</h2>
-    <label class="lbl" for="linea">Nombre de la línea</label>
-    <input class="campo" id="linea" list="lineasList" autocomplete="off" placeholder="Ej. Línea Almendralejo 1">
-    <datalist id="lineasList"></datalist>
-    <div class="lineas-rapidas" id="rapidas"></div>
-
     <label class="lbl" for="numero">Número del centro (CD)</label>
     <input class="campo" id="numero" inputmode="numeric" autocomplete="off" placeholder="Ej. 46301">
+    <div class="pista" id="pista"></div>
+
+    <label class="lbl" for="linea">Nombre de la línea</label>
+    <input class="campo" id="linea" list="lineasList" autocomplete="off" placeholder="Se rellena sola al escribir el CD">
+    <datalist id="lineasList"></datalist>
+    <div class="lineas-rapidas" id="rapidas"></div>
 
     <label class="check" for="bt">
       <input type="checkbox" id="bt">
@@ -191,6 +194,28 @@ header .wrap{justify-content:flex-start}
   const KEY = 'prodbt_registros_v1';
   let registros = cargar();
   let editandoId = null;
+  let baseCD = null, lineaAuto = false;
+  fetch('centros.json').then(r=>r.json()).then(d=>{ baseCD = d; buscarCD(); }).catch(()=>{});
+
+  function lineaDeCD(n){
+    if (!baseCD) return null;
+    const i = baseCD.c[String(n).trim().replace(/^0+(?=\d)/,'')];
+    return i === undefined ? null : baseCD.l[i];
+  }
+  function buscarCD(){
+    const p = $('pista'); if (!p || !$('modal').classList.contains('abierto')) return;
+    const n = $('numero').value.trim();
+    if (!n){ p.textContent=''; p.className='pista'; return; }
+    if (!baseCD){ p.textContent='Cargando base de centros…'; p.className='pista'; return; }
+    const l = lineaDeCD(n);
+    if (l){
+      $('linea').value = l; lineaAuto = true;
+      p.textContent = '✓ Línea encontrada: ' + l; p.className = 'pista ok';
+    } else {
+      if (lineaAuto){ $('linea').value=''; lineaAuto=false; }
+      p.textContent = 'CD no encontrado en la base: escribe la línea a mano.'; p.className='pista';
+    }
+  }
 
   const $ = id => document.getElementById(id);
   const fechaInput = $('fecha');
@@ -263,15 +288,16 @@ header .wrap{justify-content:flex-start}
     editandoId = reg ? reg.id : null;
     $('modalTitulo').textContent = reg ? 'Editar centro' : 'Nuevo centro';
     const lineas = lineasConocidas();
-    $('linea').value = reg ? reg.linea : (lineas[0] || '');
+    $('linea').value = reg ? reg.linea : '';
     $('numero').value = reg ? reg.numero : '';
+    lineaAuto = false; $('pista').textContent=''; $('pista').className='pista';
     $('bt').checked = reg ? !reg.bt : false;
     actualizarEstado();
     $('error').textContent = '';
     $('lineasList').innerHTML = lineas.map(l=>`<option value="${esc(l)}">`).join('');
     $('rapidas').innerHTML = lineas.slice(0,6).map(l=>`<button type="button" data-l="${esc(l)}">${esc(l)}</button>`).join('');
     $('modal').classList.add('abierto');
-    setTimeout(()=> ($('linea').value ? $('numero') : $('linea')).focus(), 50);
+    setTimeout(()=> $('numero').focus(), 50);
   }
   function cerrarModal(){ $('modal').classList.remove('abierto'); editandoId = null; }
 
@@ -344,9 +370,11 @@ header .wrap{justify-content:flex-start}
   $('bt').addEventListener('change', actualizarEstado);
   $('modal').addEventListener('click', e=>{ if(e.target.id==='modal') cerrarModal(); });
   $('numero').addEventListener('keydown', e=>{ if(e.key==='Enter') guardar(); });
-  $('linea').addEventListener('keydown', e=>{ if(e.key==='Enter') $('numero').focus(); });
+  $('linea').addEventListener('keydown', e=>{ if(e.key==='Enter') guardar(); });
+  $('linea').addEventListener('input', ()=>{ lineaAuto = false; });
+  $('numero').addEventListener('input', buscarCD);
   $('rapidas').addEventListener('click', e=>{
-    const l = e.target.getAttribute('data-l'); if(l!==null){ $('linea').value = l; $('numero').focus(); }
+    const l = e.target.getAttribute('data-l'); if(l!==null){ $('linea').value = l; lineaAuto = false; }
   });
   $('lista').addEventListener('click', e=>{
     const ed = e.target.closest('[data-edit]'), del = e.target.closest('[data-del]');
