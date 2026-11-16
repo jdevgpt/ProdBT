@@ -172,8 +172,8 @@ header .wrap{justify-content:flex-start}
 
     <label class="check" for="bt">
       <input type="checkbox" id="bt">
-      <span>Tiene Baja Tensión</span>
-      <span class="badge sin estado" id="estado">Sin BT</span>
+      <span>No tiene Baja Tensión</span>
+      <span class="badge con estado" id="estado">Con BT</span>
     </label>
 
     <div class="error" id="error"></div>
@@ -265,7 +265,7 @@ header .wrap{justify-content:flex-start}
     const lineas = lineasConocidas();
     $('linea').value = reg ? reg.linea : (lineas[0] || '');
     $('numero').value = reg ? reg.numero : '';
-    $('bt').checked = reg ? reg.bt : false;
+    $('bt').checked = reg ? !reg.bt : false;
     actualizarEstado();
     $('error').textContent = '';
     $('lineasList').innerHTML = lineas.map(l=>`<option value="${esc(l)}">`).join('');
@@ -277,14 +277,14 @@ header .wrap{justify-content:flex-start}
 
   function actualizarEstado(){
     const e = $('estado');
-    if ($('bt').checked){ e.textContent='Con BT'; e.className='badge con estado'; }
-    else { e.textContent='Sin BT'; e.className='badge sin estado'; }
+    if ($('bt').checked){ e.textContent='Sin BT'; e.className='badge sin estado'; }
+    else { e.textContent='Con BT'; e.className='badge con estado'; }
   }
 
   function guardar(){
     const linea = $('linea').value.trim();
     const numero = $('numero').value.trim();
-    const bt = $('bt').checked;
+    const bt = !$('bt').checked;
     if (!linea){ $('error').textContent = 'Escribe el nombre de la línea.'; return; }
     if (!numero){ $('error').textContent = 'Escribe el número del centro.'; return; }
     const fecha = fechaInput.value;

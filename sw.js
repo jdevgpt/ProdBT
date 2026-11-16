@@ -1,5 +1,5 @@
 /* ProdBT · Centros diarios · funcionamiento sin conexión (JDev) */
-const VERSION = 'prodbt-v1';
+const VERSION = 'prodbt-v2';
 const LOCALES = ["./", "./index.html", "./apple-touch-icon.png", "./icon-192.png", "./icon-512.png", "./icon-maskable-512.png", "./icon.svg", "./manifest.webmanifest"];
 const EXTERNOS = ["https://fonts.googleapis.com/css2?family=Barlow:wght@500;600;700&display=swap"];
 
